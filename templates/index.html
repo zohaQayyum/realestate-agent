@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="utf-8">
+      <title>Lahore Estates — Chat</title>
+      <style>
+          body { font-family: system-ui, sans-serif; background:#f0f2f5; margin:0; }
+          #box { max-width:420px; margin:40px auto; background:#fff; border-radius:12px;
+              box-shadow:0 4px 20px rgba(0,0,0,.1); overflow:hidden; }
+          #head { background:#1a73e8; color:#fff; padding:16px; font-weight:600; }
+          #chat { height:460px; overflow-y:auto; padding:16px; }
+          .msg { margin:8px 0; padding:10px 14px; border-radius:14px; max-width:80%;
+              line-height:1.4; white-space:pre-wrap; }
+          .user { background:#1a73e8; color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
+          .bot  { background:#eaeef3; color:#111; border-bottom-left-radius:4px; }
+          #bar { display:flex; border-top:1px solid #eee; }
+          #inp { flex:1; border:0; padding:14px; font-size:15px; outline:none; }
+          #send { border:0; background:#1a73e8; color:#fff; padding:0 20px; cursor:pointer; }
+      </style>
+    </head>
+    <body>
+        <div id="box">
+            <div id="head">🏠 Lahore Estates — Ask us anything</div>
+            <div id="chat"></div>
+            <div id="bar">
+            <input id="inp" placeholder="Type a message..." autocomplete="off">
+            <button id="send">Send</button>
+            </div>
+        </div>
+
+        <script>
+        let history = [];
+        const chat = document.getElementById("chat");
+        const inp = document.getElementById("inp");
+
+        function add(text, who) {
+        const d = document.createElement("div");
+        d.className = "msg " + who;
+        d.textContent = text;
+        chat.appendChild(d);
+        chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function send() {
+        const text = inp.value.trim();
+        if (!text) return;
+        add(text, "user");
+        history.push({ role: "user", content: text });
+        inp.value = "";
+
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ history })
+        });
+        const data = await res.json();
+        history = data.history;
+        add(data.reply, "bot");
+        }
+
+        document.getElementById("send").onclick = send;
+        inp.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+
+        add("Hi! Welcome to Lahore Estates. Looking to buy or rent?", "bot");
+        </script>
+    </body>
+</html>
