@@ -13,9 +13,10 @@ def send_email(subject, body):
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = sender  # apne aap ko bhej rahe (client ka email yahan aayega)
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(sender, password)
-        server.sendmail(sender, sender, msg.as_string())
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
+      server.starttls()
+      server.login(sender, password)
+      server.sendmail(sender, sender, msg.as_string())
 
 load_dotenv()
 client = Anthropic()
